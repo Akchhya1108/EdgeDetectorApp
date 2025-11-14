@@ -1,7 +1,4 @@
-EdgeViewer 🎥
-
-
-A real-time edge detection Android application that captures camera frames, processes them using OpenCV in C++ (via JNI/NDK), and displays the output using OpenGL ES 2.0. The project also includes a TypeScript-based web viewer for displaying processed frames.
+EdgeViewer 🎥A real-time edge detection Android application that captures camera frames, processes them using OpenCV in C++ (via JNI/NDK), and displays the output using OpenGL ES 2.0. The project also includes a TypeScript-based web viewer for displaying processed frames.
 📋 Table of Contents
 
 Features Implemented
