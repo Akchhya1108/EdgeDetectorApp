@@ -5,9 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.edgeviewer"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.edgeviewer"
@@ -17,6 +15,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                cppFlags.add("-std=c++17")
+            }
+        }
     }
 
     buildTypes {
@@ -28,10 +31,19 @@ android {
             )
         }
     }
+
+    externalNativeBuild {
+        cmake {
+            // The path is relative to the module's root, so "app/" is not needed.
+            path = file("src/main/cpp/CMakeLists.txt")
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
