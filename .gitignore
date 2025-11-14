@@ -20,6 +20,16 @@ build/
 */build/
 /opencv/
 /app/src/main/cpp/opencv/
+# Ignore OpenCV binaries
+app/src/main/cpp/opencv/libs/
+app/src/main/cpp/opencv/include/
+
+# Ignore CMake build cache
+app/.cxx/
+**/build/
+
+# Ignore gradle cache
+.gradle/
 
 
 # Local configs
