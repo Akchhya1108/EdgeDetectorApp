@@ -1,24 +1,25 @@
-cmake_minimum_required(VERSION 3.10.2)
-project(edgeviewer_native)
+cmake_minimum_required(VERSION 3.18.1)
 
-set(CMAKE_CXX_STANDARD 17)
+project(NativeEdgeProcessor)
+
+# Path to OpenCV (we just pasted it)
+set(OpenCV_DIR "${CMAKE_SOURCE_DIR}/src/main/cpp/opencv")
+
+find_package(OpenCV REQUIRED CONFIG)
 
 add_library(
         native-lib
         SHARED
-        native-lib.cpp
         opencv_processor.cpp
 )
 
-find_library(
-        log-lib
-        log
+target_include_directories(native-lib PRIVATE
+        ${OpenCV_INCLUDE_DIRS}
 )
-
-# If you add OpenCV headers later, we include them here (MUST DO THIS)
-include_directories(${CMAKE_SOURCE_DIR}/include)
 
 target_link_libraries(
         native-lib
-        ${log-lib}
+        ${OpenCV_LIBS}
+        log
+        android
 )

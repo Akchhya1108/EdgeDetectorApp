@@ -17,5 +17,5 @@ object NativeBridge {
      * and returns the processed frame.
      */
     external fun processFrame(input: ByteArray, width: Int, height: Int): ByteArray
-    // The duplicate line has been removed.
+
 }
