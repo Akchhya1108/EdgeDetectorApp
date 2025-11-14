@@ -13,3 +13,45 @@
 .externalNativeBuild
 .cxx
 local.properties
+/.idea
+# Gradle
+.gradle/
+build/
+*/build/
+/opencv/
+/app/src/main/cpp/opencv/
+
+
+# Local configs
+local.properties
+settings.gradle.kts
+
+# Android Studio
+.idea/
+*.iml
+.DS_Store
+
+# Native
+.cxx/
+externalNativeBuild/
+captures/
+
+# OpenCV binaries (we only keep opencv folder)
+app/src/main/cpp/opencv/abi-*/OpenCVConfig.cmake
+app/src/main/cpp/opencv/**/*.a
+app/src/main/cpp/opencv/**/*.so
+
+# Generated files
+*.log
+# Android/NDK temporary
+.externalNativeBuild/
+*.log
+
+# Ignore ALL external libs shown in "External Libraries"
+# These come from Android SDK and are always installed locally.
+# DO NOT TRACK THEM.
+android-sdk/
+Android/
+sdk/
+*.jar
+*.aar
