@@ -50,6 +50,51 @@ captures/
 app/src/main/cpp/opencv/abi-*/OpenCVConfig.cmake
 app/src/main/cpp/opencv/**/*.a
 app/src/main/cpp/opencv/**/*.so
+# -----------------------------
+# ANDROID STANDARD IGNORES
+# -----------------------------
+*.iml
+.gradle/
+local.properties
+.idea/
+.DS_Store
+/build
+/captures/
+.externalNativeBuild/
+
+# -----------------------------
+# CMAKE + NDK BUILD FOLDERS
+# -----------------------------
+app/.cxx/
+app/build/
+**/cmake-build-debug/
+**/cmake-build-release/
+
+# -----------------------------
+# OPENCV (DO NOT COMMIT .so or include files)
+# -----------------------------
+app/src/main/cpp/opencv/include/
+app/src/main/cpp/opencv/libs/
+
+# If you keep the opencv folder empty, don't ignore the folder itself
+# just ignore the heavy subfolders.
+
+# -----------------------------
+# NINJA / CMAKE CACHE FILES
+# -----------------------------
+**/CMakeFiles/
+**/CMakeCache.txt
+**/cmake_install.cmake
+**/build.ninja
+**/rules.ninja
+
+# -----------------------------
+# GRADLE BUILDS
+# -----------------------------
+*.apk
+*.ap_
+*.aab
+.idea
 
 # Generated files
 *.log
