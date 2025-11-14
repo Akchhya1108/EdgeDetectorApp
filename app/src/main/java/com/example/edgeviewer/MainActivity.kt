@@ -7,11 +7,16 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.Gravity
+import android.widget.FrameLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import android.opengl.GLSurfaceView
 import com.example.edgeviewer.camera.CameraController
+import com.example.edgeviewer.gl.GLRenderer
+import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,33 +25,61 @@ class MainActivity : AppCompatActivity() {
     }
 
     private var camera: CameraController? = null
+    private lateinit var glView: GLSurfaceView
+    private var renderer: GLRenderer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(android.R.layout.simple_list_item_1)
 
-        // JNI test (keep it)
+        // create GLSurfaceView programmatically and set as content view
+        glView = GLSurfaceView(this).apply {
+            setEGLContextClientVersion(2)
+        }
+
+        renderer = GLRenderer(640, 480)
+        glView.setRenderer(renderer)
+        glView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
+
+        // Wrap view in a FrameLayout so we can later overlay controls if needed
+        val root = FrameLayout(this)
+        root.addView(glView, FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            Gravity.CENTER
+        ))
+        setContentView(root)
+
+        // JNI test
         val s = NativeBridge.stringFromJNI()
         Log.d("JNI", "Message from native: $s")
 
-        // Check permission first, request if needed
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
             == PackageManager.PERMISSION_GRANTED) {
-            Log.d("Perm", "Camera permission already granted")
             startCameraController()
         } else {
-            Log.d("Perm", "Requesting camera permission")
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), REQ_CAMERA)
         }
     }
 
     private fun startCameraController() {
         camera = CameraController(this, 640, 480) { frameBytes ->
-
-            val processed = NativeBridge.processFrame(frameBytes, 640, 480)
-
-            Log.d("Native", "Processed frame returned = ${processed.size}")
-
+            // Camera callback runs on a background handler (not UI). We will:
+            // 1) send bytes to native for processing (also fast native code)
+            // 2) receive processed RGBA bytes and pass to renderer
+            thread {
+                try {
+                    val processed = NativeBridge.processFrame(frameBytes, 640, 480)
+                    // processed should be RGBA (width*height*4)
+                    if (processed != null && processed.isNotEmpty()) {
+                        // Pass to renderer on GL thread using queueEvent
+                        glView.queueEvent {
+                            renderer?.updateFrame(processed, 640, 480)
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "native processing failed: ${e.message}")
+                }
+            }
         }
 
         camera?.start()
@@ -56,11 +89,8 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQ_CAMERA) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d("Perm", "Camera permission granted by user")
                 startCameraController()
             } else {
-                Log.w("Perm", "Camera permission denied")
-                // show dialog to open app settings
                 AlertDialog.Builder(this)
                     .setTitle("Camera permission required")
                     .setMessage("This app needs camera permission to capture frames. Please enable it in Settings.")
@@ -76,8 +106,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        // stop or cleanup camera thread if you add a stop method later
+    override fun onResume() {
+        super.onResume()
+        glView.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        glView.onPause()
     }
 }
